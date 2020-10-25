@@ -1,0 +1,5 @@
+<launch>
+	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+		<rosparam command = "load" file="$(find diffbot)/src/diffbot_localization/config/ekf_localization.yaml"/>
+  </node>
+ </launch>
