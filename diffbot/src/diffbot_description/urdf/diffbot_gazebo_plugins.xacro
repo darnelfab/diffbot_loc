@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot>
+
+
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>40</updateRate>
+        <legacyMode>false</legacyMode>
+        <leftJoint>left_wheel_hinge</leftJoint>
+        <rightJoint>right_wheel_hinge</rightJoint>
+        <wheelSeparation>0.39</wheelSeparation>
+        <wheelDiameter>0.15</wheelDiameter>
+        <torque>5</torque>
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>diffbot_odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <robotBaseFrame>chassis</robotBaseFrame>
+        <publishWheelTF>false</publishWheelTF>
+        <publishWheelJointState>false</publishWheelJointState>
+        <rosDebugLevel>na</rosDebugLevel>
+        <wheelAcceleration>0</wheelAcceleration>
+        <wheelTorque>5</wheelTorque>
+        <odometrySource>world</odometrySource>
+        <publishTf>1</publishTf>
+	<publishOdomTF>true</publishOdomTF>
+    </plugin>
+</gazebo>
+<!--source: https://answers.ros.org/question/355735/problem-with-gazebo-differential-drive-plugin/-->
+
+  <gazebo reference="chassis">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+
+<!--IMU plugin-->
+  <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>diffbot_imu</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>10.0</updateRateHZ>
+	<serviceName>imu_service</serviceName>
+        <gaussianNoise>0.0</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>imu_link</frameName>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+  </gazebo>
+
+<!-- Ground Truth Pose -->
+  <gazebo>
+      <plugin name="gazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>30.0</updateRate>
+      <bodyName>chassis</bodyName>
+      <topicName>diffbot_ground_truth</topicName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <frameName>map</frameName>
+      </plugin>
+  </gazebo>  
+
+</robot>

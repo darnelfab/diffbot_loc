@@ -3,8 +3,10 @@
 <robot name="diffbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 
+  <xacro:property name="imuSize" value="0.05"/>
+  <xacro:property name="imuMass" value="0.1"/>
 
-  <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/diffbot.gazebo" />
+  <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/diffbot_gazebo_plugins.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/materials.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/macros.xacro" />
 
@@ -18,9 +20,23 @@
       <inertia
           ixx="0.5" ixy="0" ixz="0"
           iyy="1.0" iyz="0"
-          izz="0.1"
-      />
+          izz="0.1"/>
     </inertial>
+
+    <collision name='collision'>
+      <geometry>
+        <box size=".4 .2 .1"/>
+      </geometry>
+    </collision>
+
+    <visual name='chassis_visual'>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <geometry>
+        <box size=".4 .2 .1"/>
+      </geometry>
+    </visual>
+
+
 
     <collision name='collision'>
       <geometry>
@@ -129,6 +145,38 @@
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+<!--create the imu sensor-->
+  <link name="imu_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${imuSize} ${imuSize} ${imuSize}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${imuSize} ${imuSize} ${imuSize}"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="${imuMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${imuMass}" x="${imuSize}" y="${imuSize}" z="${imuSize}" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz=".2 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="imu_link"/>
   </joint>
 
 

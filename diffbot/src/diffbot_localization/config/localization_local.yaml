@@ -7,7 +7,7 @@ two_d_mode: true
 frequency: 100
 
 # WHEEL ENCODER 
-odom0: /odom
+odom0: odom
 odom0_config: [true,true,true,
                false,false,true,
                true,false,false,
@@ -17,7 +17,7 @@ odom0_differential: true #
 odom0_queue_size: 10
 
 # IMU
-imu0: /imu_link
+imu0: imu
 imu0_config: [false, false, false, # no position data
               true, true, true, # Orientation
               false, false, false, # no velocity data
