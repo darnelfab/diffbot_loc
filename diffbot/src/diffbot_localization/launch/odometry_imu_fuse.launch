@@ -130,6 +130,6 @@
    </node>
    
 
-  <node pkg="rosbag" type="record subset /imu/data ekf_filtered_odometry " args="-o $(find diffbot)/src/diffbot_localization//src/diffbot_localization/rosbag/" name="record" output="screen"/>
+  <!--node pkg="rosbag" type="record subset /imu/data ekf_filtered_odometry " args="-o $(find diffbot)/src/diffbot_localization//src/diffbot_localization/rosbag/" name="record" output="screen"/-->
 
 </launch>
