@@ -17,11 +17,11 @@
 
 
 
-	<!-- Show Path -->
+	<!-- Show Path >
 	<node pkg="hector_trajectory_server" type="hector_trajectory_server" name="hector_trajectory_server">
 		<param name="target_frame_name" value="map"/>
 		<param name="source_frame_name" value="chassis"/>
-	</node>
+	</node-->
 
 	<!-- Visualization -->
 	<!--<node pkg="rqt_plot" type="rqt_plot" name="rqt_plot" output="screen" args="/odometry/filtered/pose/twist/twist"/>-->

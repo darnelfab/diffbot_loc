@@ -10,7 +10,7 @@ frequency : 100
 # differential : convert to velocity
 
 # Local
-odom0: /odometry/filtered/local
+odom0: diffbot_ground_truth
 odom0_config: [true,true,true, # lin pos
                false,false,true, # ang or
                true,true,true, # lin vel
@@ -22,10 +22,10 @@ odom0_queue_size: 10
 # IMU Again
 imu0: imu
 imu0_config: [false, false, false, # no position data
-              true, true, true, # Orientation
+              false, false, false, # Orientation
               false, false, false, # no velocity data
-              true, true, true, # Angular Velocity
-              true, true, true] # Linear Acceleration #TODO : disable y-direction acceleration for diff-drive robot!
+              false, false, true, # Angular Velocity
+              true, false, false] # Linear Acceleration #TODO : disable y-direction acceleration for diff-drive robot!
 imu0_differential: false # Absolute Orientation (w.r.t magnetic field)
 imu0_queue_size: 10
 imu0_remove_gravitational_acceleration: false # already removed

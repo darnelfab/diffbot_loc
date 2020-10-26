@@ -39,7 +39,7 @@
 
                                        false, false, false]</rosparam>
 
-       <param name="imu0" value="/imu/data"/>
+       <param name="imu0" value="diffbot_imu"/>
 
        <param name="imu0_differential" value="false" />
 
