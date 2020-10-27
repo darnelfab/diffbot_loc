@@ -150,16 +150,16 @@
 <!--create the imu sensor-->
   <link name="imu_link">
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
       <geometry>
-        <box size="${imuSize} ${imuSize} ${imuSize}"/>
+        <box size=".4 .2 .1"/>
       </geometry>
     </collision>
 
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="${imuSize} ${imuSize} ${imuSize}"/>
+        <box size=".4 .2 .1"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -167,14 +167,14 @@
     <inertial>
       <mass value="${imuMass}" />
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <box_inertia m="${imuMass}" x="${imuSize}" y="${imuSize}" z="${imuSize}" />
+      <box_inertia m="${imuMass}" x="0.4" y="0.2" z="0.1" />
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
   </link>
 
   <joint name="imu_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <origin xyz=".2 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 0" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
     <child link="imu_link"/>
   </joint>
