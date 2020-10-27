@@ -5,6 +5,7 @@
 
   <xacro:property name="imuSize" value="0.05"/>
   <xacro:property name="imuMass" value="0.1"/>
+  <xacro:property name="camera_link" value="0.05" />
 
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/diffbot_gazebo_plugins.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/materials.xacro" />
@@ -156,6 +157,44 @@
       </geometry>
     </collision>
 
+  <joint name="hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.15 0 0.1" rpy="0 0 0"/>
+    <parent link="link3"/>
+    <child link="hokuyo_link"/>
+  </joint>
+
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="${camera_link} 0 0.05" rpy="0 0 0"/>
+    <parent link="link3"/>
+    <child link="camera_link"/>
+  </joint>
+
+  <!-- Camera -->
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="${camera_link} ${camera_link} ${camera_link}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -172,14 +211,27 @@
     </inertial>
   </link>
 
-  <joint name="imu_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <origin xyz=".2 0 0" rpy="0 0 0"/>
-    <parent link="chassis"/>
-    <child link="imu_link"/>
-  </joint>
+  <!-- Hokuyo Laser -->
+  <link name="hokuyo_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
 
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rrbot_description/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
 
-
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
 
 </robot>
