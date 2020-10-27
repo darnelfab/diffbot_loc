@@ -16,3 +16,4 @@
   <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find diffbot)src/diffbot_description/urdf/diffbot.xacro"/-->
 
 </launch>
+
