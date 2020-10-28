@@ -27,11 +27,15 @@
 
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
-    <node name="rviz" pkg="rviz" type="rviz"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find diffbot)/rviz/odom_viz.rviz"/>
     
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
         <param name="use_gui" value="False"/>
     </node>
+
+	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+		<rosparam command = "load" file="$(find diffbot)/src/diffbot_localization/config/ekf_localization.yaml"/>
+  </node>
 </launch>
 
 

@@ -10,7 +10,7 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
 rospy.init_node('odometry_publisher')
 
-odom_pub = rospy.Publisher("diffbot_odom", Odometry, queue_size=50)
+odom_pub = rospy.Publisher("diffbot_odom_cusztom", Odometry, queue_size=50)
 odom_broadcaster = tf.TransformBroadcaster()
 
 x = 0.0
