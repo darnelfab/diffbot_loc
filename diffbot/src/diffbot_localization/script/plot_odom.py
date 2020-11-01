@@ -61,7 +61,7 @@ while not rospy.is_shutdown():
         (x, y, 0.),
         odom_quat,
         current_time,
-        "chassis",
+        "base_link",
         "diffbot_odom"
     )
 		
@@ -75,7 +75,7 @@ while not rospy.is_shutdown():
     odom.pose.pose = Pose(Point(x, y, 0.), Quaternion(*odom_quat))
 
     # set the velocity
-    odom.child_frame_id = "chassis"
+    odom.child_frame_id = "base_link"
     odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, vth))
 
     # publish the message

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<node pkg="tf" type="static_transform_publisher" name="b2a" args="0 0 0 0 0 0 chassis diffbot" /> <!-- align x forward -->
+	<node pkg="tf" type="static_transform_publisher" name="b2a" args="0 0 0 0 0 0 base_link diffbot" /> <!-- align x forward -->
 	<!--<node pkg="tf" type="static_transform_publisher" name="m2o" args="0 0 0 0 0 0 map odom 100" />--> <!-- align x forward -->
 
 	<!-- Localization - local -->

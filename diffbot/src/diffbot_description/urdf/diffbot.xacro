@@ -181,7 +181,7 @@
     <child link="imu_link"/>
   </joint>
 
-  <link name="camera">
+  <link name="camera_rgb_frame">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -209,7 +209,7 @@
     <axis xyz="0 1 0" />
     <origin xyz=".2 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
-    <child link="camera"/>
+    <child link="camera_rgb_frame"/>
   </joint>
 
 
@@ -217,11 +217,11 @@
     <axis xyz="0 1 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
-    <child link="hokuyo"/>
+    <child link="hokuyo_link"/>
   </joint>
 
   <!-- Hokuyo Laser -->
-  <link name="hokuyo">
+  <link name="hokuyo_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
