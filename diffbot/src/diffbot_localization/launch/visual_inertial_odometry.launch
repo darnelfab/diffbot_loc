@@ -9,8 +9,8 @@
   <arg name="depth_topic"             default="/camera/depth_registered/image_raw" />
   <arg name="camera_info_topic"       default="/camera/rgb/camera_info" />
   <arg name="imu_topic"               default="/diffbot_imu" />
-  <arg name="imu_ignore_acc"          default="true" />
-  <arg name="imu_remove_gravitational_acceleration" default="true" />
+  <arg name="imu_ignore_acc"          default="false" />
+  <arg name="imu_remove_gravitational_acceleration" default="false" />
 
   <!-- Localization-only mode -->
   <arg name="localization"      default="false"/>

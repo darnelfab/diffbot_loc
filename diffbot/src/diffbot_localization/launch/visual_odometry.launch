@@ -20,7 +20,7 @@
   <arg unless="$(arg stereo)" name="depth"  default="true"/>
  
   <!-- Choose visualization -->
-  <arg name="rtabmapviz"              default="true" /> 
+  <arg name="rtabmapviz"              default="false" /> 
   <arg name="rviz"                    default="false" />
   
   <!-- Localization-only mode -->
@@ -68,7 +68,7 @@
   <arg name="right_camera_info_topic" default="$(arg stereo_namespace)/right/camera_info" />
   
   <!-- Already synchronized RGB-D related topic, with rtabmap_ros/rgbd_sync nodelet -->
-  <arg name="rgbd_sync"               default="true"/>         <!-- pre-sync rgb_topic, depth_topic, camera_info_topic -->
+  <arg name="rgbd_sync"               default="false"/>         <!-- pre-sync rgb_topic, depth_topic, camera_info_topic -->
   <arg name="approx_rgbd_sync"        default="true"/>          <!-- false=exact synchronization -->
   <arg name="subscribe_rgbd"          default="$(arg rgbd_sync)"/>
   <arg name="rgbd_topic"              default="rgbd_image" />
@@ -81,9 +81,9 @@
   <arg name="depth_image_transport"   default="compressedDepth"/>  <!-- Depth compatible types: compressedDepth (see "rosrun image_transport list_transports") -->
    
   <arg name="subscribe_scan"          default="true"/>
-  <arg name="scan_topic"              default="/diffbot/laser_scan"/>
+  <arg name="scan_topic"              default="/scan"/>
   <arg name="subscribe_scan_cloud"    default="true"/>
-  <arg name="scan_cloud_topic"        default="/depth/points"/>
+  <arg name="scan_cloud_topic"        default="/camera/depth/points"/>
   <arg name="subscribe_scan_descriptor" default="false"/>
   <arg name="scan_descriptor_topic"   default="/scan_descriptor"/>
   <arg name="scan_cloud_max_points"   default="0"/>
