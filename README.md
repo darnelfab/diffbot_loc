@@ -21,4 +21,4 @@ For visual inertial odometry(fusing visual odometry with imu):
 ```sh
 roslaunch diffbot visual_inertial_odometry.launch
 ```
-The topic for visual odometry is /visual_inertial_odom
+The topic for visual inertial odometry is /visual_inertial_odom
