@@ -3,7 +3,7 @@ frequency: 50     #refresh rate
 two_d_mode: true  # ekf_localization_node and ukf_localization_node both use a 3D omnidirectional motion model
                   # 3D information is used for the state estimate
 
-publish_tf: false  # broadcast the transformation over the /tf topic
+publish_tf: true  # broadcast the transformation over the /tf topic
 
 publish_acceleration: false #publish the acceleration state
 
@@ -12,7 +12,7 @@ odom_frame: odom           # Defaults to "odom" if unspecified
 base_link_frame: chassis   # Defaults to "base_link" if unspecified
 world_frame: odom          # Defaults to the value of odom_frame if unspecified
 
-odom0: /visual_odom       # inputs from each input message type (nav_msgs/Odometry,
+odom0: diffbot_odom        # inputs from each input message type (nav_msgs/Odometry,
                            # geometry_msgs/PoseWithCovarianceStamped, geometry_msgs/TwistWithCovarianceStamped,
                            # sensor_msgs/Imu)
 
@@ -26,12 +26,11 @@ odom0: /visual_odom       # inputs from each input message type (nav_msgs/Odomet
 
 odom0_config: [false, false, false,
                false, false, false,
-               true, true, false,
+               true, true, true,
                false, false, true,
                false, false, false]
 
 odom0_differential: false
-odom0_relative: true
 
 # The order of the values is :
                 #	x, y, z, 
@@ -47,12 +46,6 @@ imu0_config: [false, false, false,
               true, false, false]
 
 imu0_differential: false
-imu0_relative: true
-
-print_diagnostics: true
-
-odom0_queue_size: 5
-imu0_queus_size: 50
 
 # [ADVANCED] The process noise covariance matrix can be difficult to tune, and can vary for each application, so it is
 # exposed as a configuration parameter. This matrix represents the noise we add to the total error after each

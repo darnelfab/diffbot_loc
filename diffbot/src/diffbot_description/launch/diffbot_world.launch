@@ -50,92 +50,13 @@
         <param name="use_gui" value="False"/>
     </node>
 <!--********************************************************************************************************-->
-	<!--launch the ekf_robot_localization pkg to fuse imu and wheel odometry>
-    <node pkg="robot_localization" type="imu_odom_ekf_node" name="imu_odom_ekf_localization">
-	<rosparam command = "load" file="$(find diffbot)/src/diffbot_localization/config/imu_odom_ekf_fusion.yaml"/>
-    </node-->
-<!--********************************************************************************************************-->
+    <node pkg="robot_localization" type="ekf_localization_node" name="odom_inertial_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/odom_inertial_fuse.yaml" />
 
-
-    <node pkg="robot_localization" type="ekf_localization_node" name="imu_odom_ekf_localization" clear_params="true">
-      <param name="use_sim_time"                                      value="true" />
-      <param name="frequency"                                         value="30"/>  
-      <param name="sensor_timeout"                                    value="0.1"/>  
-      <param name="two_d_mode"                                        value="true"/>
-
-      <param name="map_frame"                                         value="map"/>
-      <param name="odom_frame"                                        value="odom"/>
-      <param name="base_link_frame"                                   value="chassis"/>
-      <param name="world_frame"                                       value="odom"/>
-      <param name="odom0"                                             value="$(arg odom_topic_odom0"/>
-      <param name="imu0"                                              value="$(arg imu_topic_imu0)"/> 
-      <!--param name="odom0"                                             value="diffbot_odom"/>
-      <param name="imu0"                                              value="imu0"/--> 
-
-      
-
-      <rosparam param="odom0_config">[true,  true,  false, 
-                                      false, false, false, 
-                                      false, false, false, 
-                                      false, false, false,
-                                      false, false, false]</rosparam>
-
-      <rosparam param="imu0_config">[false, false, false, 
-                                     true,  true,  true, 
-                                     false, false, false, 
-                                     true,  true,  true,
-                                     true, true, true]</rosparam>
-
-     <param name="odom0_differential"                                   value="false"/>
-     <param name="imu0_differential"                                    value="false"/>
-
-     <param name="imu0_remove_gravitational_acceleration"               value="true"/>
-
-     <param name="print_diagnostics" value="false"/>
-
- 
-     <remap from="odometry/filtered" to="odom_imu_filtered"/>
-  <!-- ======== ADVANCED PARAMETERS ======== -->
-
-     <param name="odom0_queue_size" value="2"/>
-     <param name="imu0_queue_size" value="10"/>
-
-     <param name="debug"           value="false"/>
-     <param name="debug_out_file"  value="/home/darnel/catkin_darnel_ws/src/diffbot/src/diffbot_localization/debug/debug_ekf_localization.txt"/>
-
-     <rosparam param="process_noise_covariance">[0.05, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
-                                                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]</rosparam>
-
-       <rosparam param="initial_estimate_covariance">[1e-9, 0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    1e-9, 0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    1e-9, 0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    1e-9, 0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    1e-9, 0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    1e-9, 0,    0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    1e-9, 0,    0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    1e-9, 0,    0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    1e-9, 0,     0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    1e-9,  0,     0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     1e-9,  0,     0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     1e-9,  0,    0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
-                                                      0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]</rosparam>
-
+        <remap from="odometry/filtered" to="odom_imu_filtered"/>
+    
     </node>
+
 	<!--****************************************************************************************************************************************************************-->
   <!-- Localization-only mode -->
   <arg name="localization"      default="false"/>
