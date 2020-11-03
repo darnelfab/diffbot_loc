@@ -7,8 +7,13 @@
   <!-- WARNING : Database is automatically deleted on each startup                       -->
   <!--           See "delete_db_on_start" option below...                                -->
   
+  <arg name="frame_id"                default="chassis" />
+  <arg name="imu_topic"               default="/diffbot_imu" />
+  <arg name="imu_ignore_acc"          default="false" />
+  <arg name="imu_remove_gravitational_acceleration" default="false" />
+
   <!-- Choose visualization -->
-  <arg name="rviz" default="true" />
+  <arg name="rviz" default="false" />
   <arg name="rtabmapviz" default="false" />
   
   <!-- Choose hector_slam or icp_odometry for odometry -->
@@ -78,7 +83,7 @@
 
     <!-- SLAM -->
     <!-- args: "delete_db_on_start" and "udebug" -->
-    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+    <node name="icp_rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
       <param name="frame_id" type="string" value="chassis"/>
   
       <param name="subscribe_depth" type="bool" value="true"/>
@@ -127,4 +132,5 @@
     <param name="voxel_size" type="double" value="0.01"/>
   </node>
 
+ 
 </launch>

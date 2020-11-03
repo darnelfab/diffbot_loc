@@ -149,8 +149,8 @@
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
 
-<!--create the imu sensor-->
-  <link name="imu_link">
+  <!--create the imu0 sensor-->
+  <link name="imu_link_0">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -174,12 +174,78 @@
     </inertial>
   </link>
 
-  <joint name="imu_joint" type="fixed">
+  <joint name="imu_joint_0" type="fixed">
     <axis xyz="0 0 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
-    <child link="imu_link"/>
+    <child link="imu_link_0"/>
   </joint>
+
+  <!--create the imu1 sensor-->
+  <link name="imu_link_1">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size=".01 .01 .01"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="${imuMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${imuMass}" x="0.4" y="0.2" z="0.1" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="imu_joint_1" type="fixed">
+    <axis xyz="0 0 0" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="imu_link_1"/>
+  </joint>
+
+  <!--create the imu2 sensor-->
+  <link name="imu_link_2">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size=".01 .01 .01"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <inertial>
+      <mass value="${imuMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${imuMass}" x="0.4" y="0.2" z="0.1" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="imu_joint_2" type="fixed">
+    <axis xyz="0 0 0" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="imu_link_2"/>
+  </joint>
+
+  <!--camera sensor-->
 
   <link name="camera_rgb_frame">
     <collision>
@@ -213,13 +279,6 @@
   </joint>
 
 
-  <joint name="hokuyo_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="chassis"/>
-    <child link="hokuyo_link"/>
-  </joint>
-
   <!-- Hokuyo Laser -->
   <link name="hokuyo_link">
     <collision>
@@ -232,7 +291,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package:$(find diffbot)/src/diffbot_description/urdf/meshes/hokuyo.dae"/>
+        <mesh filename="file:$(find diffbot)/src/diffbot_description/urdf/meshes/hokuyo.dae"/>
       </geometry>
     </visual>
 
@@ -242,6 +301,12 @@
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
     </inertial>
   </link>
-
+  
+  <joint name="hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.15 0 0.1" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="hokuyo_link"/>
+  </joint>
 </robot>
 
