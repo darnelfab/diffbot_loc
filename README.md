@@ -1,6 +1,6 @@
 # diffbot_loc
 
-This package contains the updated launch files for visual odometry and visual inertial odometry. The lidar odometry launch file was refactored and now you can access the lidar odometry node, through which you can echo its topic which is **/lidar_odom**. Also the sensor fusion for visual and inertial odometry was corected so as not to overwrite for the original one using imu., its node will be **/visual_inertial_fuse**. Furthermore you can see **/lidar_inertial_fuse** being published too. This is the fusion of lidar using icp method and imu.
+This package contains the updated launch files for visual odometry and visual inertial odometry. The lidar odometry launch file was refactored and now you can access the lidar odometry node, through which you can echo its topic which is **/lidar_odom**. Also the sensor fusion for visual and inertial odometry was corected so as not to overwrite for the original one using imu., its node will be **/visual_inertial_fuse**. Furthermore you can see **/lidar_inertial_fuse** being published , this is the fusion of lidar using icp method and imu.
 
 ## Errors to be rectified
 
