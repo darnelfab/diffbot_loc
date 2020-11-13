@@ -1,4 +1,3 @@
-# diffbot_loc
-updated repositiory
+# Corrections for icp odometry
 
-This is dev branch for v4.
+The code for icp odometry was refactored now the odometry can be retrieved. I change the sensor from the hokuyo lidar to the lds_lfcd_sensor(another lidar sensor).
