@@ -4,4 +4,4 @@ The code for icp odometry was refactored now the odometry can be retrieved. I ch
 
 ##Rqt graph
 
-![alt text](https://github.com/darnelfab/diffbot_loc/commit/fbc605f8be17cb8e6941f0f5ce2e190dcfd21e5e?raw=true)
+![alt text](https://github.com/darnelfab/diffbot_loc/blob/v5-dev/pictures/rqt.png?raw=true)
