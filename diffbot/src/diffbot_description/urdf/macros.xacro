@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+<!--macro for wheel which includes intertia calculation for the cylinder-->
+<!--Source: richard05. 2020. mybot_ws. https://github.com/richardw05/mybot_ws. accessed: 20 September 2020-->
 <robot>
   <macro name="cylinder_inertia" params="m r h">
     <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
@@ -20,11 +22,6 @@
       izz="${2*m*r*r/5}"
     />
   </macro>
-
-
-
-
-
 
 
   <macro name="wheel" params="lr tY">
@@ -71,7 +68,6 @@
       <joint_properties damping="0.0" friction="0.0"/>
     </joint>
 
-
     <transmission name="${lr}_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${lr}_wheel_hinge">
@@ -84,9 +80,5 @@
     </transmission>
 
   </macro>
-
-
-
-
 
 </robot>

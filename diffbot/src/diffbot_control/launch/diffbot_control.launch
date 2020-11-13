@@ -1,31 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--launch>
-
-  <Load joint controller configurations from YAML file to parameter server >
-  <rosparam file="$(find diffbot)/src/diffbot_control/config/diffbot_control.yaml" command="load"/>
-
-  <load the controllers >
-  <node name="controller_spawner"
-    pkg="controller_manager"
-    type="spawner" respawn="false"
-    output="screen" ns="/diffbot"
-    args="joint_state_controller
-      mobile_base_controller"
-  />
-
-  < convert joint states to TF transforms for rviz, etc >
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" respawn="false" output="screen">
-    <param name="robot_description" command="$(find xacro)/xacro.py '$(find diffbot)/src/diffbot_description/urdf/diffbot.xacro'"/>
-    <remap from="/joint_states" to="/diffbot/joint_states" />
-  </node>
-
-</launch-->
-
+	<!--This launch file links the differential drive plugin to the teleop twist keyboard plugin via cmd_vel, such that the keyboard strokes controls the differential drive robot-->
+	<!--Source: ROS.org. 2015. teleop_twist_keyboard. http://wiki.ros.org/teleop_twist_keyboard . Accessed: 22 September 2020.-->
+	<!--Source: Gaitech EDU. 2016. Keyboard Teleop. http://edu.gaitech.hk/turtlebot/teleop-doc.html . Accessed: 22 September 2020.-->
 <launch>
 
-  <node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen">
+  <node name="teleop" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen"> <!--The launch file runs ROS node teleop_twist_keyboard of the teleop_twist_keyboard package-->
 
-    <remap from="/cmd_vel" to="/cmd_vel"/>
+    <remap from="/cmd_vel" to="/cmd_vel"/> <!--remaps the topic of the velocity command to the cmd_vel topic used by the diffbot as specified in the differential drive robot plugin-->
 
   </node>
 

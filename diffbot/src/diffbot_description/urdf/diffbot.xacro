@@ -1,22 +1,27 @@
 <?xml version='1.0'?>
 
 <robot name="diffbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<!--calls the macros for robot properties and Gazebo plugin as well as set global parameters for mass and size of IMU and Camera-->
 
-
-  <xacro:property name="imuSize" value="0.05"/>
-  <xacro:property name="imuMass" value="0.1"/>
+  <xacro:property name="cameraSize"         value="0.05"/>
+  <xacro:property name="cameraMass"         value="0.1"/>
+  <xacro:property name="imuSize"            value="0.05"/>
+  <xacro:property name="imuMass"            value="0.1"/>
 
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/diffbot_gazebo_plugins.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/materials.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/macros.xacro" />
-
-
+<!--*********************************************************************************************************************************************-->
+		<!--creates the geometry of the differential drive robot which consists of  a rectangular chassis 0.4x0.2x0.1 m, and two cylindrical wheels of radius 0.1m and length 0.05m-->
+		<!--Source: richard05. 2020. mybot_ws. https://github.com/richardw05/mybot_ws. accessed: 20 September 2020-->
+	
+<!--Chassis geometry. The chassis is used as the BaseLink to which the odom from differential drive Gazebo plugin is linked, making it possible to control the robot through cmd-vel when launching teleop-->
   <link name='chassis'>
-    <pose>0 0 0.1 0 0 0</pose>
+    <pose>0 0 0 0 0 0</pose>
 
     <inertial>
       <mass value="10.0"/>
-      <origin xyz="0.0 0 0.1" rpy=" 0 0 0"/>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
       <inertia
           ixx="0.5" ixy="0" ixz="0"
           iyy="1.0" iyz="0"
@@ -36,8 +41,6 @@
       </geometry>
     </visual>
 
-
-
     <collision name='collision'>
       <geometry>
         <box size=".4 .2 .1"/>
@@ -50,7 +53,6 @@
         <box size=".4 .2 .1"/>
       </geometry>
     </visual>
-
 
     <collision name='caster_collision'>
       <origin xyz="-0.15 0 -0.05" rpy=" 0 0 0"/>
@@ -76,7 +78,8 @@
       </geometry>
     </visual>
   </link>
-
+	
+	<!--Wheel geometry description--> 
 
   <link name="left_wheel">
     <!--origin xyz="0.1 0.13 0.1" rpy="0 1.5707 1.5707"/-->
@@ -89,7 +92,7 @@
     <visual name="left_wheel_visual">
       <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
       <geometry>
-        <cylinder radius="0.1" length="0.05"/>
+        <cylinder radius="0.1" length="0.05"/>  
       </geometry>
     </visual>
     <inertial>
@@ -128,7 +131,6 @@
     </inertial>
   </link>
 
-
   <joint type="continuous" name="left_wheel_hinge">
     <origin xyz="0.1 0.15 0" rpy="0 0 0"/>
     <child link="left_wheel"/>
@@ -147,19 +149,20 @@
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
 
-<!--create the imu sensor-->
-  <link name="imu_link">
+<!--*********************************************************************************************************************************************-->
+	<!--create the imu0 model which links to the imu plugin for Gazebo-->
+  <link name="imu_link_0">
     <collision>
-      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size=".4 .2 .1"/>
+        <box size="0.1 0.1 0.1"/>
       </geometry>
     </collision>
 
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size=".4 .2 .1"/>
+        <box size=".01 .01 .01"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -172,14 +175,76 @@
     </inertial>
   </link>
 
-  <joint name="imu_joint" type="fixed">
+  <joint name="imu_joint_0" type="fixed">
     <axis xyz="0 0 0" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
-    <child link="imu_link"/>
+    <child link="imu_link_0"/>
   </joint>
 
+<!--*********************************************************************************************************************************************-->
+	<!--camera sensor-->
 
+  <link name="camera_rgb_frame">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+    </collision>
 
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
 
+    <inertial>
+      <mass value="${cameraMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${cameraMass}" x="${cameraSize}" y="${cameraSize}" z="${cameraSize}" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz=".2 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="camera_rgb_frame"/>
+  </joint>
+
+<!--*********************************************************************************************************************************************-->
+  <!-- Hokuyo Laser -->
+  <link name="hokuyo">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+    <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:$(find diffbot)/src/diffbot_description/urdf/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  
+  <joint name="hokuyo_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.15 0 0.1" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="hokuyo"/>
+  </joint>
 </robot>
+

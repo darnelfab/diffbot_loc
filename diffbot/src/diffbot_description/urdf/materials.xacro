@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+	<!--macro defining the colour of the various parts of the differential drive robot--> 
+	<!--Source: richard05. 2020. mybot_ws. https://github.com/richardw05/mybot_ws. accessed: 20 September 2020-->
 <robot>
 
   <material name="black">
