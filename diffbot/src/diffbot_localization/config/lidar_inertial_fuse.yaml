@@ -12,7 +12,7 @@ odom_frame: odom           # Defaults to "odom" if unspecified
 base_link_frame: chassis   # Defaults to "base_link" if unspecified
 world_frame: odom          # Defaults to the value of odom_frame if unspecified
 
-odom0: lidar_odom       # inputs from each input message type (nav_msgs/Odometry,
+odom0: /lidar_odom       # inputs from each input message type (nav_msgs/Odometry,
                            # geometry_msgs/PoseWithCovarianceStamped, geometry_msgs/TwistWithCovarianceStamped,
                            # sensor_msgs/Imu)
 
@@ -98,5 +98,6 @@ initial_estimate_covariance: [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]
+
 
 

@@ -65,6 +65,16 @@
     </node>
 
 	<!--****************************************************************************************************************************************************************-->
+<!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name imu_only_ekf-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="imu_only_ekf" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_only_ekf.yaml" />
+
+        <remap from="odometry/filtered" to="imu_only_ekf"/>
+    
+    </node>
+
+	<!--****************************************************************************************************************************************************************-->
   <!-- Localization-only mode -->
   <arg name="localization"      default="false"/>
   <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
@@ -138,7 +148,6 @@
   <!-- Odometry from laser scans -->
   <!-- If argument "hector" is true, we use Hector mapping to generate odometry for us -->
   <node if="$(arg hector)" pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
-    
     <!-- Frame names -->
     <param name="map_frame" value="map" />
     <param name="base_frame" value="chassis" />
@@ -169,7 +178,7 @@
     
      <param name="frame_id"        type="string" value="chassis"/>   
      
-     <param name="Icp/PointToPlane"  type="string" value="true"/>
+     <param name="Icp/PointToPlane"  type="string" value="false"/>
      <param name="Icp/VoxelSize"     type="string" value="0.05"/>
      <param name="Icp/Epsilon"       type="string" value="0.001"/>
      <param name="Icp/PointToPlaneK"  type="string" value="5"/>
@@ -282,5 +291,6 @@
 	<!--**********************************************************************************************************************************************************************-->
 
 </launch>
+
 
 
