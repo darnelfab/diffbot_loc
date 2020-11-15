@@ -168,7 +168,7 @@
     
      <param name="frame_id"        type="string" value="chassis"/>   
      
-     <param name="Icp/PointToPlane"  type="string" value="false"/>
+     <param name="Icp/PointToPlane"  type="string" value="false"/> T<!-- his was set to false, as the point to plane was not being computed -->
      <param name="Icp/VoxelSize"     type="string" value="0.05"/>
      <param name="Icp/Epsilon"       type="string" value="0.001"/>
      <param name="Icp/PointToPlaneK"  type="string" value="5"/>
