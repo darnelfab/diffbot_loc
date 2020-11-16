@@ -31,8 +31,8 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/-->
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/turtlebot_playground.world"/-->
-    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/-->
-    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/> -->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/> -->
+    <arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/>
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/curvedMaze.world"/> -->
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/store.world"/> -->
     <arg name="paused" value="$(arg paused)"/>
