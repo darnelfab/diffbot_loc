@@ -12,7 +12,7 @@ When loading using;
 ```sh
 roslaunch diffbot diffbot_world.launch
 ```
-
+the meshes does not instantiate and the robot fall into oblivion.
 
 ## Rqt graph
 
