@@ -1,6 +1,18 @@
-# Corrections for icp odometry
+# Comparative analysis of different techniques of robot localisation
 
-The code for icp odometry was refactored now the odometry can be retrieved. I changed the sensor from the hokuyo lidar to the lds_lfcd_sensor(another lidar sensor) and did some modifications to the .yaml files relating lidar odometry.
+ Two new worlds were created, store.world and curvedMaze.world. However even though the worlds can be uploaded successfuly when using;
+
+```sh
+gazebo worldname.world
+
+```
+
+When loading using;
+
+```sh
+roslaunch diffbot diffbot_world.launch
+```
+
 
 ## Rqt graph
 
