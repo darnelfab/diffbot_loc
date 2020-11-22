@@ -8,9 +8,13 @@
 
 ![alt text](https://github.com/darnelfab/diffbot_loc/blob/v5-dev/pictures/rqt.png?raw=true)
 
+## Rqt graph for amcl
+
+![alt text](https://github.com/darnelfab/diffbot_loc/blob/v5-dev/pictures/rosgraph_amcl.png?raw=true)
+
 ## Rtabmap viewer
 
-![alt text](https://github.com/darnelfab/diffbot_loc/blob/v5-dev/pictures/rqt.png?raw=true)
+![alt text](https://github.com/darnelfab/diffbot_loc/blob/v5-dev/pictures/rtabmap-viewer.png?raw=true)
 
 ## Work in progress
 
