@@ -229,7 +229,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="file:$(find diffbot)/src/diffbot_description/urdf/meshes/hokuyo.dae"/>
+        <mesh filename="file:$(find diffbot)/src/diffbot_description/meshes/hokuyo.dae"/>
       </geometry>
     </visual>
 
