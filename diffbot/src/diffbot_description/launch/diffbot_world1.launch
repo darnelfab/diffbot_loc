@@ -31,8 +31,10 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/-->
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/turtlebot_playground.world"/-->
-    <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/>
-    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/-->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/> -->
+    <arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/>
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/curvedMaze.world"/> -->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/store.world"/> -->
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -64,6 +66,8 @@
     
     </node>
 
+  <!--**********************************************************************************************************************************************************************-->
+
 	<!--****************************************************************************************************************************************************************-->
 <!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name imu_only_ekf-->
 
@@ -75,63 +79,7 @@
     </node>
 
 	<!--****************************************************************************************************************************************************************-->
-  <!-- Localization-only mode -->
-  <arg name="localization"      default="false"/>
-  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
-  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>  
-  
-  <group ns="rtabmap">
-    <!-- Visual Odometry -->
-    <node pkg="rtabmap_ros" type="rgbd_odometry" name="visual_odometry" output="screen" args="$(arg rtabmap_args)">
-      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
-      <remap from="depth/image"     to="$(arg depth_topic)"/>
-      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
-      <remap from="odom"            to="/visual_odom"/>
-
-      <param name="frame_id"               type="string" value="$(arg frame_id)"/>
-      <param name="publish_tf"             type="bool"   value="false"/>
-      <param name="publish_null_when_lost" type="bool"   value="true"/>
-      <param name="guess_from_tf"          type="bool"   value="true"/>
-
-      <param name="Odom/FillInfoData"      type="string" value="true"/>
-      <param name="Odom/ResetCountdown"    type="string" value="1"/>
-      <param name="Vis/FeatureType"        type="string" value="6"/> 
-      <param name="OdomF2M/MaxSize"        type="string" value="1000"/>
-    </node>
-
-    <!-- SLAM -->
-    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
-      <param name="frame_id"        type="string" value="$(arg frame_id)"/>
- 
-      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
-      <remap from="depth/image"     to="$(arg depth_topic)"/>
-      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
-      <remap from="odom"            to="/diffbot_odom"/>
-      
-      <param name="Kp/DetectorStrategy"    type="string" value="6"/> <!-- use same features as odom -->
-
-      <!-- localization mode -->
-      <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/> 
-      <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
-      <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
-      
-    </node>
-  </group>
-
-	<!--*********************************************************************************************************************************************************************-->
-	 <!--launches the extended kalman filter, fusing the inertial sensor and the visual odometry, publishing it under the topic name visual_inertial_fuse-->
-
-    <node pkg="robot_localization" type="ekf_localization_node" name="visual_inertial_fuse" clear_params="true">
-        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/visual_inertial_fuse.yaml" />
-
-        <remap from="odometry/filtered" to="vo_imu_filtered"/>
-    
-    </node>
-
-
-	<!--**********************************************************************************************************************************************************************-->
-
-	<!--SLAM using Hector-->
+  <!--SLAM using Hector-->
 
   <!-- Choose visualization -->
   <arg name="rviz" default="false" />
@@ -140,7 +88,7 @@
   <!-- Choose hector_slam or icp_odometry for odometry -->
   <arg name="hector" default="false" />
 
-  <param name="use_sim_time" type="bool" value="True"/>
+  <param name="use_sim_time" type="bool" value="true"/>
   
   <node if="$(arg hector)" pkg="tf" type="static_transform_publisher" name="scanmatcher_to_base_footprint" 
     args="0.0 0.0 0.0 0.0 0.0 0.0 /hokuyo_link /chassis 100" />
@@ -178,7 +126,7 @@
     
      <param name="frame_id"        type="string" value="chassis"/>   
      
-     <param name="Icp/PointToPlane"  type="string" value="false"/>
+     <param name="Icp/PointToPlane"  type="string" value="false"/> T<!-- this was set to false, as the point to plane was not being computed -->
      <param name="Icp/VoxelSize"     type="string" value="0.05"/>
      <param name="Icp/Epsilon"       type="string" value="0.001"/>
      <param name="Icp/PointToPlaneK"  type="string" value="5"/>
@@ -242,6 +190,50 @@
     </node>
   
   </group>
+	<!--****************************************************************************************************************************************************************-->
+  <!-- Localization-only mode -->
+  <arg name="localization"      default="false"/>
+  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
+  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>  
+  
+  <group ns="rtabmap">
+    <!-- Visual Odometry -->
+    <node pkg="rtabmap_ros" type="rgbd_odometry" name="visual_odometry" output="screen" args="$(arg rtabmap_args)">
+      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+      <remap from="depth/image"     to="$(arg depth_topic)"/>
+      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+      <remap from="odom"            to="/visual_odom"/>
+
+      <param name="frame_id"               type="string" value="$(arg frame_id)"/>
+      <param name="publish_tf"             type="bool"   value="false"/>
+      <param name="publish_null_when_lost" type="bool"   value="true"/>
+      <param name="guess_from_tf"          type="bool"   value="true"/>
+
+      <param name="Odom/FillInfoData"      type="string" value="true"/>
+      <param name="Odom/ResetCountdown"    type="string" value="1"/>
+      <param name="Vis/FeatureType"        type="string" value="6"/> 
+      <param name="OdomF2M/MaxSize"        type="string" value="1000"/>
+    </node>
+
+    <!-- SLAM -->
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+      <param name="frame_id"        type="string" value="$(arg frame_id)"/>
+ 
+      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+      <remap from="depth/image"     to="$(arg depth_topic)"/>
+      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+      <remap from="odom"            to="/diffbot_odom"/>
+      
+      <param name="Kp/DetectorStrategy"    type="string" value="6"/> <!-- use same features as odom -->
+
+      <!-- localization mode -->
+      <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/> 
+      <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+      <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+      
+    </node>
+  </group>
+
 
   <!-- Visualisation RVIZ -->
   <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(find rtabmap_ros)/launch/config/demo_robot_mapping.rviz" output="screen"/>
@@ -277,6 +269,17 @@
 
 	<!--**********************************************************************************************************************************************************************-->
 
+   <!--launches the extended kalman filter, fusing the inertial sensor and the visual odometry, publishing it under the topic name visual_inertial_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="visual_inertial_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/visual_inertial_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="vo_imu_filtered"/>
+    
+    </node>
+
+
+  <!--**********************************************************************************************************************************************************************-->
 
 	 <!--launches the extended kalman filter, fusing the IMU sensor, lidar sensor and the visual odometry, publishing it under the topic name imu_visual_lidar_fuse-->
 
@@ -290,6 +293,101 @@
 
 	<!--**********************************************************************************************************************************************************************-->
 
+<!-- Run the map server -->
+<arg name="map_file" default="$(find diffbot)/src/gmapping_generated_maps/simple_world/map.yaml"/>
+<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+    
+<node pkg="amcl" type="amcl" name="amcl" output="screen">
+  <remap from="scan" to="/scan" />
+  <remap from="odom" to="/diffbot_odom" />
+  <!-- Publish scans from best pose at a max of 10 Hz -->
+  <param name="odom_model_type" value="diff"/>
+  <param name="odom_alpha5" value="0.1"/>
+  <param name="transform_tolerance" value="0.2" />
+  <param name="gui_publish_rate" value="10.0"/>
+  <param name="laser_max_beams" value="30"/>
+  <param name="min_particles" value="500"/>
+  <param name="max_particles" value="5000"/>
+  <param name="kld_err" value="0.05"/>
+  <param name="kld_z" value="0.99"/>
+  <param name="odom_alpha1" value="0.2"/>
+  <param name="odom_alpha2" value="0.2"/>
+  <param name="odom_alpha3" value="0.8"/>
+  <param name="odom_alpha4" value="0.2"/>
+  <param name="laser_z_hit" value="0.5"/>
+  <param name="laser_z_short" value="0.05"/>
+  <param name="laser_z_max" value="0.05"/>
+  <param name="laser_z_rand" value="0.5"/>
+  <param name="laser_sigma_hit" value="0.2"/>
+  <param name="laser_lambda_short" value="0.1"/>
+  <param name="laser_lambda_short" value="0.1"/>
+  <param name="laser_model_type" value="likelihood_field"/>
+  <param name="laser_likelihood_max_dist" value="2.0"/>
+  <param name="update_min_d" value="0.2"/>
+  <param name="update_min_a" value="0.5"/>
+  <param name="odom_frame_id" value="odom"/>
+  <param name="base_frame_id" value="base_footprint"/>
+  <param name="global_frame_id" value="map"/>
+  <param name="resample_interval" value="1"/>
+  <param name="transform_tolerance" value="0.1"/>
+  <param name="recovery_alpha_slow" value="0.0"/>
+  <param name="recovery_alpha_fast" value="0.0"/>
+  <param name="initial_pose_x" value ="0.0"/>
+  <param name="initial_pose_y" value ="0.0"/>
+  <param name="initial_pose_a" value ="0.0"/>
+</node>
+<!--*************************************************************************************************************************************************************************************-->
+<!--launch navigation> <!THERE'S AN ISSUE HERE PERTAINING TO des_x which I guess needs to have a default value. @Ubayde have a look at it as remember, all the sensors MUST be running simultaneously when running the simulations-->
+    <arg name="des_x" />
+    <arg name="des_y" />
+    <param name="des_pos_x" value="$(arg des_x)" />
+    <param name="des_pos_y" value="$(arg des_y)" />
+    <node pkg="diffbot_navigation" type="go_to_point.py" name="go_to_point" output="screen" />
+<!--*************************************************************************************************************************************************************************************-->
+
+<!--diffbot_gmapping--> <!--there's an issue here regarding the node name which may be appearing twice or is conflicting with another note. @Ubayde have a look at it such that all sensors get to run simulataneously. -->
+  
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"></node>
+  
+  <node pkg="rviz" type="rviz" name="rviz"></node>
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <param name="base_frame" value="$(arg base_frame)"/>
+    <param name="odom_frame" value="$(arg odom_frame)"/>
+    <param name="map_update_interval" value="5.0"/>
+    <param name="maxUrange" value="6.0"/>
+    <param name="maxRange" value="8.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="1"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="lskip" value="0"/>
+    <param name="minimumScore" value="200"/>
+    <param name="srr" value="0.01"/>
+    <param name="srt" value="0.02"/>
+    <param name="str" value="0.01"/>
+    <param name="stt" value="0.02"/>
+    <param name="linearUpdate" value="0.5"/>
+    <param name="angularUpdate" value="0.436"/>
+    <param name="temporalUpdate" value="-1.0"/>
+    <param name="resampleThreshold" value="0.5"/>
+    <param name="particles" value="80"/>
+    <param name="xmin" value="-1.0"/>
+    <param name="ymin" value="-1.0"/>
+    <param name="xmax" value="1.0"/>
+    <param name="ymax" value="1.0"/>
+
+    <param name="delta" value="0.05"/>
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+  </node>
+<!--***********************************************************************************************************************************************-->
 </launch>
 
 

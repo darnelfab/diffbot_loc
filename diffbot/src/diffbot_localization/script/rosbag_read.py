@@ -1,36 +1,40 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
-import rosbag
-from odom.msg import Pose, Color
-bag = rosbag.Bag('../home/darnel/catkin_darnel_ws/odom.bag')
-# Initialize some empty lists for storing the data
-tt = []
-x = []
-y = []
-th = []
-v = []
-# Note - there seems to be issues with the recorded log file, so
-# the following will cause an error
-#for topic,msg,t in bag.read_messages():
-# Need to only read the pose messages, like this
-for topic,msg,t in bag.read_messages(topics=['/diffbot/pose']):
-    tt.append(t.to_sec())
-    x.append(msg.x)
-    y.append(msg.y)
-    th.append(msg.theta)
-    v.append(msg.linear_velocity)
-bag.close()
+import rospy
+import time
 
-		# plotting the points  
-plt.plot(x, y) 
-  
-	# naming the x axis 
-plt.xlabel('x - axis') 
-	# naming the y axis 
-plt.ylabel('y - axis') 
-  
-	# giving a title to my graph 
-plt.title('My first graph!') 
-  
-	# function to show the plot 
-plt.show() 
+from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Imu
+
+def clbk_laser(msg):
+    # 720 / 5 = 144
+    regions = [
+        min(min(msg.ranges[0:143]), 10),
+        min(min(msg.ranges[144:287]), 10),
+        min(min(msg.ranges[288:431]), 10),
+        min(min(msg.ranges[432:575]), 10),
+        min(min(msg.ranges[576:713]), 10),
+    ]
+    rospy.loginfo(regions)
+    
+def clbk_imu(msg):
+    # 720 / 5 = 144
+    regions = [
+        min(min(msg.ranges[0:143]), 10),
+        min(min(msg.ranges[144:287]), 10),
+        min(min(msg.ranges[288:431]), 10),
+        min(min(msg.ranges[432:575]), 10),
+        min(min(msg.ranges[576:713]), 10),
+    ]
+    rospy.loginfo(regions)
+	
+	
+
+def main():	
+    rospy.init_node('reading_laser')
+    sub = rospy.Subscriber('/scan', LaserScan, clbk_laser)
+    rospy.spin()
+
+
+if __name__ == '__main__':
+    main()
