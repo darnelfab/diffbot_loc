@@ -27,12 +27,13 @@
   <arg name="imu_ignore_acc"                            default="false" />
   <arg name="imu_remove_gravitational_acceleration"     default="false" />
 <!--********************************************************************************************************-->
-  <!--settings to launch simulation in Gazebo and selection of the world-->
+    <!--settings to launch simulation in Gazebo and selection of the world-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/-->
+    <arg name="world_name" value="$(find diffbot)/src/map/worlds/complex.world" />
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/turtlebot_playground.world"/-->
-    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/> -->
-    <arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/>
+    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/ -->
+    <!--<arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/>-->
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/curvedMaze.world"/> -->
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/store.world"/> -->
     <arg name="paused" value="$(arg paused)"/>
