@@ -73,7 +73,7 @@
   <!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name imu_only_ekf-->
 
     <node pkg="robot_localization" type="ekf_localization_node" name="imu_only_ekf" clear_params="true">
-        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_only_ekf.yaml" />
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_only_ekf1.yaml" />
 
         <remap from="odometry/filtered" to="imu_only_ekf"/>
     
