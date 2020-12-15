@@ -29,12 +29,12 @@
 <!--********************************************************************************************************-->
     <!--settings to launch simulation in Gazebo and selection of the world-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/-->
-    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/complex.world" /-->
-    <!--<arg name="world_name" value="$(find diffbot)/src/map/worlds/cylinder_world.world" /-->
+    <!--<arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/>-->
+    <arg name="world_name" value="$(find diffbot)/src/map/worlds/complex.world" />
+    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/cylinder_world.world" /-->
     <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/turtlebot_playground.world"/-->
-    <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world" />
-    <!--<arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/ -->
+    <!--<arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world" />-->
+    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world" /-->
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/curvedMaze.world"/> -->
     <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/store.world"/> -->
     <arg name="paused" value="$(arg paused)"/>
@@ -69,7 +69,18 @@
     </node>
 
   <!--**********************************************************************************************************************************************************************-->
+  
+  <!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name imu_only_ekf-->
 
+    <node pkg="robot_localization" type="ekf_localization_node" name="imu_only_ekf" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_only_ekf.yaml" />
+
+        <remap from="odometry/filtered" to="imu_only_ekf"/>
+    
+    </node>
+    
+  <!--**********************************************************************************************************************************************************************-->
+  
   <!--SLAM using Hector-->
 
   <!-- Choose visualization -->

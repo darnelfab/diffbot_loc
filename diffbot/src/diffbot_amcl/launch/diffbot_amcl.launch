@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 <!-- Run the map server -->
-<arg name="map_file" default="$(find diffbot)/src/gmapping_generated_maps/simple_world/map.yaml"/>
+<arg name="map_file" default="$(find diffbot)/src/gmapping_generated_maps/complex_world/complex_world.yaml"/>
+
+<!-- cylinder_world/cylinder_world.yaml -->
+<!-- complex_world/complex_world.yaml -->
+
 <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
     
 <node pkg="amcl" type="amcl" name="amcl" output="screen">
