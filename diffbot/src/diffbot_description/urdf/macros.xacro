@@ -2,7 +2,7 @@
 <!--macro for wheel which includes intertia calculation for the cylinder-->
 <!--Source: richard05. 2020. mybot_ws. https://github.com/richardw05/mybot_ws. accessed: 20 September 2020-->
 <robot>
-  <macro name="cylinder_inertia" params="m r h">
+  <!--macro name="cylinder_inertia" params="m r h">
     <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
       iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
       izz="${m*r*r/2}"
@@ -79,6 +79,6 @@
       </actuator>
     </transmission>
 
-  </macro>
+  </macro-->
 
 </robot>

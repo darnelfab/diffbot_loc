@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<!--This launch file is used to launch the differential drive robot, spawns it into Gazebo which is used as a visual interface when controlling it in the various worlds. The rviz is used to see the tf of the different coordinate frames. -->
+	<!--Also, this launch files launches all all the sensors and extended kalman filters at the same time such that when running rosbag, all the data are automatically synchronised at the same pose at t=0 seconds. -->
+	<!--Since when teleop twist is launched, the terminal window needs to remain open in order to control the diffbot, a separate launch file is used, making the process more practical-->
+
+<launch>
+	<!--args to launch simulation in rviz & Gazebo-->
+  <arg name="world"                                     default="empty"/> 
+  <arg name="paused"                                    default="false"/>
+  <arg name="use_sim_time"                              default="true"/>
+  <arg name="gui"                                       default="true"/>
+  <arg name="headless"                                  default="false"/>
+  <arg name="debug"                                     default="false"/>
+	<!--***********************************************************************************************-->
+	<!--args for the ekf localisation package-->
+  <arg name="frame_id"                                  default="chassis"/>
+  <arg name="rgb_topic"              			default="/camera/rgb/image_raw" />
+  <arg name="depth_topic"                               default="/camera/depth_registered/image_raw" />
+  <arg name="camera_info_topic"       			default="/camera/rgb/camera_info" />
+  <arg name="imu_topic_imu0"                            default="/imu0" />
+  <arg name="imu_topic_imu1"                            default="/imu1" />
+  <arg name="imu_topic_imu2"                            default="/imu2" />
+  <arg name="odom_topic_odom0"                          default="/diffbot_odom" />
+  <arg name="odom_topic_odom1"                          default="/visual_odom" />
+  <arg name="odom_topic_odom2"                          default="/odom2" />
+  <arg name="imu_ignore_acc"                            default="false" />
+  <arg name="imu_remove_gravitational_acceleration"     default="false" />
+<!--********************************************************************************************************-->
+  <!--settings to launch simulation in Gazebo and selection of the world-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/diffbot.world"/-->
+    <!--arg name="world_name" value="$(find diffbot)/src/map/worlds/turtlebot_playground.world"/-->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/playground.world"/> -->
+     <arg name="world_name" value="$(find diffbot)/src/map/worlds/cylinder_world.world"/> >
+
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/corridor.world"/> -->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/curvedMaze.world"/> -->
+    <!-- <arg name="world_name" value="$(find diffbot)/src/map/worlds/store.world"/> -->
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+<!--********************************************************************************************************-->  
+	<!--set the diffbot into the selected world and convert xacro to parameter server-->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find diffbot)src/diffbot_description/urdf/diffbot.xacro'"/>
+	
+	<!--spawn robot into Gazebo-->
+  <node name="diffbot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model diffbot" />
+<!--********************************************************************************************************-->
+	<!--launch arguments for rviz-->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find diffbot)/rviz/odom_viz.rviz"/>
+    
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="use_gui" value="False"/>
+    </node>
+<!--********************************************************************************************************-->
+    <!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name odom_inertial_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="odom_inertial_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/odom_inertial_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="odom_imu_filtered"/>
+    
+    </node>
+
+  <!--**********************************************************************************************************************************************************************-->
+
+	<!--****************************************************************************************************************************************************************-->
+<!--launches the extended kalman filter, fusing the inertial sensor and the odometer, publishing it under the topic name imu_only_ekf-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="imu_only_ekf" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_only_ekf1.yaml" />
+
+        <remap from="odometry/filtered" to="imu_only_ekf"/>
+    
+    </node>
+
+	<!--****************************************************************************************************************************************************************-->
+  <!--SLAM using Hector-->
+
+  <!-- Choose visualization -->
+  <arg name="rviz" default="false" />
+  <arg name="rtabmapviz" default="false" />
+  
+  <!-- Choose hector_slam or icp_odometry for odometry -->
+  <arg name="hector" default="false" />
+
+  <param name="use_sim_time" type="bool" value="true"/>
+  
+  <node if="$(arg hector)" pkg="tf" type="static_transform_publisher" name="scanmatcher_to_base_footprint" 
+    args="0.0 0.0 0.0 0.0 0.0 0.0 /hokuyo_link /chassis 100" />
+
+  <!-- Odometry from laser scans -->
+  <!-- If argument "hector" is true, we use Hector mapping to generate odometry for us -->
+  <node if="$(arg hector)" pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
+    <!-- Frame names -->
+    <param name="map_frame" value="map" />
+    <param name="base_frame" value="chassis" />
+    <param name="odom_frame" value="odom" />
+    
+    <!-- Tf use -->
+    <param name="pub_map_odom_transform" value="false"/>
+    <param name="pub_map_scanmatch_transform" value="true"/>
+    <param name="pub_odometry" value="true"/>
+    
+    <!-- Map size / start point -->
+    <param name="map_resolution" value="0.050"/>
+    <param name="map_size" value="2048"/>
+    <param name="map_multi_res_levels" value="2" />
+    
+    <!-- Map update parameters -->
+    <param name="map_update_angle_thresh" value="0.06" />
+    
+    <!-- Advertising config --> 
+    <param name="scan_topic" value="/scan"/>
+  </node>
+  
+  <!-- If argument "hector" is false, we use rtabmap's icp odometry to generate odometry for us -->
+  <node unless="$(arg hector)" pkg="rtabmap_ros" type="icp_odometry" name="icp_odometry" output="screen" >
+     <remap from="scan"      to="/scan"/>
+     <remap from="odom"      to="/lidar_odom"/>
+     <remap from="odom_info"      to="/rtabmap/odom_info"/>
+    
+     <param name="frame_id"        type="string" value="chassis"/>   
+     
+     <param name="Icp/PointToPlane"  type="string" value="false"/> T<!-- this was set to false, as the point to plane was not being computed -->
+     <param name="Icp/VoxelSize"     type="string" value="0.05"/>
+     <param name="Icp/Epsilon"       type="string" value="0.001"/>
+     <param name="Icp/PointToPlaneK"  type="string" value="5"/>
+     <param name="Icp/PointToPlaneRadius"  type="string" value="0.3"/>
+     <param name="Icp/MaxCorrespondenceDistance" type="string" value="0.1"/>
+     <param name="Icp/PM"             type="string" value="true"/> <!-- use libpointmatcher to handle PointToPlane with 2d scans-->
+     <param name="Icp/PMOutlierRatio" type="string" value="0.95"/>
+     <param name="Odom/Strategy"        type="string" value="0"/>
+     <param name="Odom/GuessMotion"     type="string" value="true"/>
+     <param name="Odom/ResetCountdown"  type="string" value="0"/>
+     <param name="Odom/ScanKeyFrameThr"  type="string" value="0.9"/>
+  </node>
+
+  <group ns="rtabmap">
+    <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+      <remap from="rgb/image"       to="/camera/rgb/image_raw"/>
+      <remap from="depth/image"     to="/camera/depth_registered/image_raw"/>
+      <remap from="rgb/camera_info" to="/camera/depth_registered/camera_info"/>
+      <param name="rgb/image_transport"   type="string" value=""/>
+      <param name="depth/image_transport" type="string" value=""/>
+    </node>
+
+    <!-- SLAM -->
+    <!-- args: "delete_db_on_start" and "udebug" -->
+    <node name="icp_rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+      <param name="frame_id" type="string" value="chassis"/>
+  
+      <param name="subscribe_depth" type="bool" value="true"/>
+      <param name="subscribe_rgbd"  type="bool" value="true"/>
+      <param name="subscribe_scan"  type="bool" value="true"/>
+  
+      <remap from="scan" to="/scan"/>
+
+      <!-- As hector doesn't provide compatible covariance in the odometry topic, don't use the topic and fix the covariance -->
+      <param if="$(arg hector)" name="odom_frame_id"            type="string" value="hector_map"/>
+      <param if="$(arg hector)" name="odom_tf_linear_variance"  type="double" value="0.0005"/>
+      <param if="$(arg hector)" name="odom_tf_angular_variance" type="double" value="0.0005"/>
+
+      <remap unless="$(arg hector)" from="odom" to="/diffbot_odom"/>
+      <param unless="$(arg hector)" name="subscribe_odom_info" type="bool" value="true"/>
+  
+      <!-- RTAB-Map's parameters -->
+      <param name="Reg/Strategy"       type="string" value="1"/>    <!-- 0=Visual, 1=ICP, 2=Visual+ICP -->
+      <param name="Reg/Force3DoF"      type="string" value="true"/>
+      <param name="RGBD/ProximityBySpace"      type="string" value="false"/>
+    </node>
+    
+    <!-- Visualisation RTAB-Map -->
+    <node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" output="screen">
+      <param name="subscribe_rgbd"      type="bool" value="true"/>
+      <param name="subscribe_laserScan" type="bool" value="true"/>
+      <param name="frame_id"            type="string" value="chassis"/>
+    
+      <remap from="scan"            to="/scan"/>
+
+      <!-- As hector doesn't provide compatible covariance in the odometry topic -->
+      <param if="$(arg hector)" name="odom_frame_id" type="string" value="hector_map"/>
+
+      <remap unless="$(arg hector)" from="odom" to="/scanmatch_odom"/>
+      <param unless="$(arg hector)" name="subscribe_odom_info" type="bool" value="true"/>
+    </node>
+  
+  </group>
+	<!--****************************************************************************************************************************************************************-->
+  <!-- Localization-only mode -->
+  <arg name="localization"      default="false"/>
+  <arg     if="$(arg localization)" name="rtabmap_args"  default=""/>
+  <arg unless="$(arg localization)" name="rtabmap_args"  default="--delete_db_on_start"/>  
+  
+  <group ns="rtabmap">
+    <!-- Visual Odometry -->
+    <node pkg="rtabmap_ros" type="rgbd_odometry" name="visual_odometry" output="screen" args="$(arg rtabmap_args)">
+      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+      <remap from="depth/image"     to="$(arg depth_topic)"/>
+      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+      <remap from="odom"            to="/visual_odom"/>
+
+      <param name="frame_id"               type="string" value="$(arg frame_id)"/>
+      <param name="publish_tf"             type="bool"   value="false"/>
+      <param name="publish_null_when_lost" type="bool"   value="true"/>
+      <param name="guess_from_tf"          type="bool"   value="true"/>
+
+      <param name="Odom/FillInfoData"      type="string" value="true"/>
+      <param name="Odom/ResetCountdown"    type="string" value="1"/>
+      <param name="Vis/FeatureType"        type="string" value="6"/> 
+      <param name="OdomF2M/MaxSize"        type="string" value="1000"/>
+    </node>
+
+    <!-- SLAM -->
+    <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="$(arg rtabmap_args)">
+      <param name="frame_id"        type="string" value="$(arg frame_id)"/>
+ 
+      <remap from="rgb/image"       to="$(arg rgb_topic)"/>
+      <remap from="depth/image"     to="$(arg depth_topic)"/>
+      <remap from="rgb/camera_info" to="$(arg camera_info_topic)"/>
+      <remap from="odom"            to="/diffbot_odom"/>
+      
+      <param name="Kp/DetectorStrategy"    type="string" value="6"/> <!-- use same features as odom -->
+
+      <!-- localization mode -->
+      <param name="Mem/InitWMWithAllNodes" type="string" value="$(arg localization)"/> 
+      <param     if="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="false"/>
+      <param unless="$(arg localization)" name="Mem/IncrementalMemory" type="string" value="true"/>
+      
+    </node>
+  </group>
+
+
+  <!-- Visualisation RVIZ -->
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(find rtabmap_ros)/launch/config/demo_robot_mapping.rviz" output="screen"/>
+   <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="standalone rtabmap_ros/point_cloud_xyzrgb">
+    <remap from="rgbd_image"      to="/rtabmap/rgbd_image"/>
+    <remap from="cloud"           to="voxel_cloud" />
+
+    <param name="voxel_size" type="double" value="0.01"/>
+  </node>
+
+	<!--**************************************************************************************************************************-->
+	
+	 <!--launches the extended kalman filter, fusing the inertial sensor and the lidar, publishing it under the topic name lidar_inertial_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="lidar_inertial_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/lidar_inertial_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="lidar_imu_filtered"/>
+    
+    </node>
+	<!--****************************************************************************************************************************-->
+
+
+	 <!--launches the extended kalman filter, fusing the lidar sensor and the visual odometry, publishing it under the topic name visual_lidar_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="visual_lidar_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/visual_lidar_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="visual_lidar_filtered"/>
+    
+    </node>
+
+
+	<!--**********************************************************************************************************************************************************************-->
+
+   <!--launches the extended kalman filter, fusing the inertial sensor and the visual odometry, publishing it under the topic name visual_inertial_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="visual_inertial_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/visual_inertial_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="vo_imu_filtered"/>
+    
+    </node>
+
+
+  <!--**********************************************************************************************************************************************************************-->
+
+	 <!--launches the extended kalman filter, fusing the IMU sensor, lidar sensor and the visual odometry, publishing it under the topic name imu_visual_lidar_fuse-->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="imu_visual_lidar_fuse" clear_params="true">
+        <rosparam command="load" file="$(find diffbot)/src/diffbot_localization/config/imu_visual_lidar_fuse.yaml" />
+
+        <remap from="odometry/filtered" to="imu_visual_lidar_filtered"/>
+    
+    </node>
+
+
+	<!--**********************************************************************************************************************************************************************-->
+
+<!-- Run the map server -->
+<arg name="map_file" default="$(find diffbot)/src/gmapping_generated_maps/simple_world/map.yaml"/>
+<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+    
+<node pkg="amcl" type="amcl" name="amcl" output="screen">
+  <remap from="scan" to="/scan" />
+  <remap from="odom" to="/diffbot_odom" />
+  <!-- Publish scans from best pose at a max of 10 Hz -->
+  <param name="odom_model_type" value="diff"/>
+  <param name="odom_alpha5" value="0.1"/>
+  <param name="transform_tolerance" value="0.2" />
+  <param name="gui_publish_rate" value="10.0"/>
+  <param name="laser_max_beams" value="30"/>
+  <param name="min_particles" value="500"/>
+  <param name="max_particles" value="5000"/>
+  <param name="kld_err" value="0.05"/>
+  <param name="kld_z" value="0.99"/>
+  <param name="odom_alpha1" value="0.2"/>
+  <param name="odom_alpha2" value="0.2"/>
+  <param name="odom_alpha3" value="0.8"/>
+  <param name="odom_alpha4" value="0.2"/>
+  <param name="laser_z_hit" value="0.5"/>
+  <param name="laser_z_short" value="0.05"/>
+  <param name="laser_z_max" value="0.05"/>
+  <param name="laser_z_rand" value="0.5"/>
+  <param name="laser_sigma_hit" value="0.2"/>
+  <param name="laser_lambda_short" value="0.1"/>
+  <param name="laser_lambda_short" value="0.1"/>
+  <param name="laser_model_type" value="likelihood_field"/>
+  <param name="laser_likelihood_max_dist" value="2.0"/>
+  <param name="update_min_d" value="0.2"/>
+  <param name="update_min_a" value="0.5"/>
+  <param name="odom_frame_id" value="odom"/>
+  <param name="base_frame_id" value="base_footprint"/>
+  <param name="global_frame_id" value="map"/>
+  <param name="resample_interval" value="1"/>
+  <param name="transform_tolerance" value="0.1"/>
+  <param name="recovery_alpha_slow" value="0.0"/>
+  <param name="recovery_alpha_fast" value="0.0"/>
+  <param name="initial_pose_x" value ="0.0"/>
+  <param name="initial_pose_y" value ="0.0"/>
+  <param name="initial_pose_a" value ="0.0"/>
+</node>
+<!--*************************************************************************************************************************************************************************************-->
+<!--launch navigation> <!THERE'S AN ISSUE HERE PERTAINING TO des_x which I guess needs to have a default value. @Ubayde have a look at it as remember, all the sensors MUST be running simultaneously when running the simulations>
+    <arg name="des_x" />
+    <arg name="des_y" />
+    <param name="des_pos_x" value="$(arg des_x)" />
+    <param name="des_pos_y" value="$(arg des_y)" />
+    <node pkg="diffbot_navigation" type="go_to_point.py" name="go_to_point" output="screen" />
+<!*************************************************************************************************************************************************************************************-->
+
+<!--diffbot_gmapping--> <!--there's an issue here regarding the node name which may be appearing twice or is conflicting with another note. @Ubayde have a look at it such that all sensors get to run simulataneously. >
+  
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"></node>
+  
+  <node pkg="rviz" type="rviz" name="rviz"></node>
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <param name="base_frame" value="$(arg base_frame)"/>
+    <param name="odom_frame" value="$(arg odom_frame)"/>
+    <param name="map_update_interval" value="5.0"/>
+    <param name="maxUrange" value="6.0"/>
+    <param name="maxRange" value="8.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="1"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="lskip" value="0"/>
+    <param name="minimumScore" value="200"/>
+    <param name="srr" value="0.01"/>
+    <param name="srt" value="0.02"/>
+    <param name="str" value="0.01"/>
+    <param name="stt" value="0.02"/>
+    <param name="linearUpdate" value="0.5"/>
+    <param name="angularUpdate" value="0.436"/>
+    <param name="temporalUpdate" value="-1.0"/>
+    <param name="resampleThreshold" value="0.5"/>
+    <param name="particles" value="80"/>
+    <param name="xmin" value="-1.0"/>
+    <param name="ymin" value="-1.0"/>
+    <param name="xmax" value="1.0"/>
+    <param name="ymax" value="1.0"/>
+
+    <param name="delta" value="0.05"/>
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
+    <remap from="scan" to="$(arg scan_topic)"/>
+  </node>
+<!***********************************************************************************************************************************************-->
+</launch>
+
+
+

@@ -8,6 +8,11 @@
   <xacro:property name="imuSize"            value="0.05"/>
   <xacro:property name="imuMass"            value="0.1"/>
 
+  <xacro:property name="r200_cam_rgb_px" value="0.005"/>
+  <xacro:property name="r200_cam_rgb_py" value="0.018"/>
+  <xacro:property name="r200_cam_rgb_pz" value="0.013"/>
+  <xacro:property name="r200_cam_depth_offset" value="0.01"/>
+
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/diffbot_gazebo_plugins.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/materials.xacro" />
   <xacro:include filename="$(find diffbot)/src/diffbot_description/urdf/macros.xacro" />
@@ -162,7 +167,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size=".01 .01 .01"/>
+        <box size=".1 .1 .1"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -184,8 +189,14 @@
 
 <!--*********************************************************************************************************************************************-->
 	<!--camera sensor-->
+<!--*********************************************************************************************************************************************-->
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="0.064 -0.065 0.094" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="camera_link"/>
+  </joint>
 
-  <link name="camera_rgb_frame">
+  <link name="camera_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -209,12 +220,35 @@
     </inertial>
   </link>
 
-  <joint name="camera_joint" type="fixed">
-    <axis xyz="0 1 0" />
-    <origin xyz=".2 0 0" rpy="0 0 0"/>
-    <parent link="chassis"/>
+  <joint name="camera_rgb_joint" type="fixed">
+    <origin xyz="${r200_cam_rgb_px} ${r200_cam_rgb_py} ${r200_cam_rgb_pz}" rpy="0 0 0"/>
+    <parent link="camera_link"/>
     <child link="camera_rgb_frame"/>
   </joint>
+  <link name="camera_rgb_frame"/>
+
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+    <parent link="camera_rgb_frame"/>
+    <child link="camera_rgb_optical_frame"/>
+  </joint>
+
+  <link name="camera_rgb_optical_frame"/>
+
+  <joint name="camera_depth_joint" type="fixed">
+    <origin xyz="${r200_cam_rgb_px} ${r200_cam_rgb_py + r200_cam_depth_offset} ${r200_cam_rgb_pz}" rpy="0 0 0"/>
+    <parent link="camera_link"/>
+    <child link="camera_depth_frame"/>
+  </joint>
+  <link name="camera_depth_frame"/>
+
+  <joint name="camera_depth_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.57 0 -1.57"/>
+    <parent link="camera_depth_frame"/>
+    <child link="camera_depth_optical_frame"/>
+  </joint>
+  <link name="camera_depth_optical_frame"/>
+
 
 <!--*********************************************************************************************************************************************-->
   <!-- Hokuyo Laser -->
@@ -229,7 +263,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="file:$(find diffbot)/src/diffbot_description/urdf/meshes/hokuyo.dae"/>
+        <mesh filename="file:$(find diffbot)/src/diffbot_description/meshes/hokuyo.dae"/>
       </geometry>
     </visual>
 
@@ -247,4 +281,5 @@
     <child link="hokuyo"/>
   </joint>
 </robot>
+
 
